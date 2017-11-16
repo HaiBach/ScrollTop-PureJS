@@ -10,7 +10,7 @@
     Init : function() {
       // Variable Initial
       this.$top = document.getElementById('scrolltop');
-      this.duration = 400;
+      this.duration = 600;
 
       // Evnet scroll
       ScrollTop.Event();
@@ -18,52 +18,67 @@
 
     Event : function() {
       this.$top.addEventListener('click', function(e) {
-        // Scroll to position fixed
-        // window.scrollTo(0, 500);
 
-        // Get position top of document
+        // Shortcut
         var docElement = document.documentElement,
-            top = (window.pageYOffset || docElement.scrollTop) - (docElement.clientTop || 0);
+            requestAnimationFrame = window.requestAnimationFrame
+            || function(callback) { return window.setTimeout(callback, 1000/60) },
 
-        // Timer
-        // var timer = setInterval(function() {
-        //   // top -= 20;
-        //   window.scrollTo(0, top - 30);
-        //   top = (window.pageYOffset || docElement.scrollTop) - (docElement.clientTop || 0);
-        //
-        //   if( top <= 0 ) clearInterval(timer);
-        //   console.log('timer');
-        // }, 10);
+            cancelAnimationFrame = window.cancelAnimationFrame
+            || window.clearTimeout;
 
-        // console.log(top);
-        var n = 0;
-        var requestAnimationFrame = window.requestAnimationFrame
-            || window.mozRequestAnimationFrame
-            || window.webkitRequestAnimationFrame
-            || window.msRequestAnimationFrame,
+        // Get position-top and timer at begin
+        var yBegin = (window.pageYOffset || docElement.scrollTop) - (docElement.clientTop || 0),
+            yEnd   = 0,
+            tBegin = +new Date(),
+            n = 0,
+            yCur, yEasing, timeCur, request;
 
-            cancelAnimationFrame = window.cancelAnimationFrasme
-            || window.mozRequestAnimationFrame;
-
-        var request;
-        // function step() {
-        //   n++;
-        //   console.log('animate');
-        //   request = requestAnimationFrame(step);
-        //   if( n > 100 ) cancelAnimationFrame(request);
-        // }
+        // Iteration
         function step() {
-          console.log('step');
+          n++;
+          timeCur = (+new Date() - tBegin) / ScrollTop.duration;
+          yCur = (1 - timeCur) * yBegin;
+          yEasing = ScrollTop.Easing.easeOutQuad(null, +new Date() - tBegin, 0, 1, ScrollTop.duration);
+          var yCur2 = (1 - yEasing) * yBegin;
+
+          console.log(+new Date() - tBegin);
+          console.log(yCur +' --------- '+ yCur2);
+
+          // Make "yCur" always >= 0
+          if( yCur < 0 ) yCur = 0;
+          if( 0 < yCur2 && yCur2 < 1 ) yCur2 = 0;
+
+          // Window ScrollTo
+          window.scrollTo(0, yCur2);
+
+          // Request Animation Frame -> make loop
+          request = requestAnimationFrame(step);
+
+          // Cancel Animation Frame
+          if( yCur <= yEnd ) cancelAnimationFrame(request);
         }
-        console.log('foo', requestAnimationFrame(step));
+        step();
 
         // Don't scrolltop with href="#"
         e.preventDefault ? e.preventDefault() : e.returnValue = false;
       });
     },
 
-    ScrollTo : function(element, pos) {
-      element.scrollTo(0, pos);
+    /**
+     * Easing for Animation
+     * Copyright : Easing v1.3 - http://gsgd.co.uk/sandbox/jquery/easing/
+     */
+    Easing : {
+      // Variable
+      // x: percent
+      // t: current time (ms)
+      // b: beginning value (gia tri 0)
+      // c: change in value (gia tri 1)
+      // d: duration (ms)
+      easeOutQuad: function (x, t, b, c, d) {
+    		return -c *(t/=d)*(t-2) + b;
+    	}
     }
   };
 }());
