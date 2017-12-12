@@ -2,15 +2,14 @@
 (function() {
   'use strict';
 
-  document.addEventListener('DOMContentLoaded', function() {
-    ScrollTop.Init();
-  });
-
+  /**
+   * MAIN STRUCTURE OF PLUGIN
+   */
   var ScrollTop = {
-    Init : function() {
+    Init : function(ele, opts) {
       // Variable Initial
-      this.$top = document.getElementById('scrolltop');
-      this.duration = 600;
+      this.$top = ele;
+      this.duration = (opts && opts.duration) || 400 ;
 
       // Evnet scroll
       ScrollTop.Event();
@@ -42,8 +41,8 @@
           yEasing = ScrollTop.Easing.easeOutQuad(null, +new Date() - tBegin, 0, 1, ScrollTop.duration);
           var yCur2 = (1 - yEasing) * yBegin;
 
-          console.log(+new Date() - tBegin);
-          console.log(yCur +' --------- '+ yCur2);
+          // console.log(+new Date() - tBegin);
+          // console.log(yCur +' --------- '+ yCur2);
 
           // Make "yCur" always >= 0
           if( yCur < 0 ) yCur = 0;
@@ -71,7 +70,7 @@
      */
     Easing : {
       // Variable
-      // x: percent
+      // x: percent (null)
       // t: current time (ms)
       // b: beginning value (gia tri 0)
       // c: change in value (gia tri 1)
@@ -81,4 +80,20 @@
       }
     }
   };
+
+
+  /**
+   * CREATE NEW PLUGIN BY:
+   *  new ScrollTop(element, options)
+   */
+  window.ScrollTop = function() {
+    ScrollTop.Init(arguments[0], arguments[1]);
+    return ScrollTop;
+  }
 }());
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  var scrolltop = document.getElementById('scrolltop');
+  new ScrollTop(scrolltop, {});
+});
