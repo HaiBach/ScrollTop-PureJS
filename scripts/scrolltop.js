@@ -77,8 +77,8 @@
       // c: change in value (gia tri 1)
       // d: duration (ms)
       easeOutQuad: function (x, t, b, c, d) {
-    		return -c *(t/=d)*(t-2) + b;
-    	}
+        return -c *(t/=d)*(t-2) + b;
+      }
     }
   };
 }());
